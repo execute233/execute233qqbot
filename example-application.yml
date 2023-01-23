@@ -1,0 +1,25 @@
+# 直接把该文件名的example-去电就可以用了。
+bot:
+  # 支持 ws, ws-reverse
+  type:
+  # websocket url
+  url:
+  # accessToken
+  accessToken:
+  # 主人QQ
+  owner:
+  # 管理员QQ
+  op:
+# 一些设置
+plugin:
+  cxk:
+    # 触发关键词
+    # 注意注意注意！！！，这里写多个参数千万不能有空格(如：xxx, xxx)，下面也一样，这样写是错的！！！
+    # 不是说我不会写代码，此项目的DI基于@Value注解，不支持复杂类型装配，而是因为我懒得写解析器
+    keywords: cxk,CXK,坤,只因,蔡,鸡
+    # 图片路径
+    image-dir:
+    # 使用该模块的qq私聊号
+    allow-friends:
+    # 使用该模块的qq群号
+    allow-groups:
