@@ -90,7 +90,7 @@ public class CommandHandler {
         command = command.substring(2);
         ByteArrayOutputStream susStream = new ByteArrayOutputStream();//正常结果流
         ByteArrayOutputStream errStream = new ByteArrayOutputStream();//异常结果流
-        CommandLine commandLine = CommandLine.parse(command);
+        CommandLine commandLine = CommandLine.parse("powershell -Command \"" + command + "\"");
         DefaultExecutor exec = new DefaultExecutor();
         PumpStreamHandler streamHandler = new PumpStreamHandler(susStream, errStream);
         exec.setStreamHandler(streamHandler);
