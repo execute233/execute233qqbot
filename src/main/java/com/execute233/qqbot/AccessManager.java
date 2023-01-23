@@ -25,17 +25,16 @@ public class AccessManager {
     private List<Long> op;
 
     /**
-     * 获取该QQ的权限类型
+     * 该QQ是否为主人账号
      * **/
-    public static AccessType getAccess(long qq) {
-        AccessManager manager = Application.APP.getBean(AccessManager.class);
-        if (manager.getOwner() == qq) {
-            return AccessType.ONLY_OWNER;
-        }
-        if (manager.getOp().contains(qq)) {
-            return AccessType.ONLY_OP;
-        }
-        return AccessType.EVERYONE;
+    public static boolean isOwner(long qq) {
+        return Application.APP.getBean(AccessManager.class).getOwner() == qq;
+    }
+    /**
+     * 该QQ是否为op账号
+     * **/
+    public static boolean isOp(long qq) {
+        return Application.APP.getBean(AccessManager.class).getOp().contains(qq);
     }
 
 }
