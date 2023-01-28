@@ -42,7 +42,10 @@ public class CommandHandler {
     public void GroupCommandHandler(Group group, Member member, MessageChain chain,int msgId) {
         try {
             //这里验证消息链长度就知道是不是指令了
-            if (chain.size() != 2) {
+            if (chain.size() < 2) {
+                return;
+            }
+            if (!AccessManager.isOp(member.getUserId())) {
                 return;
             }
             if (chain.get(1) instanceof TextMessage) {
@@ -59,20 +62,24 @@ public class CommandHandler {
                 }
             }
         } catch (Exception e) {
-            log.warn("{}", e);
+            log.warn("", e);
             sendUnknownCommandMsg(group, msgId);
         }
     }
     @FriendMessageHandler
     public void FriendMessageHandler(Friend friend,String msg,int msgId) {
+        if (!AccessManager.isOp(friend.getUserId())) {
+            return;
+        }
+        log.info("处理指令{}", msg);
         try {
-            if (msg.startsWith("//") && AccessManager.isOwner(friend.getUserId())) {
+            if (msg.startsWith("//")) {
                 localCommandHandler(friend, msg, msgId);
-            } else if (msg.startsWith("/") && AccessManager.isOp(friend.getUserId())) {
+            } else if (msg.startsWith("/")) {
                 pluginCommandHandler(friend, msg, msgId);
             }
         } catch (Exception e) {
-            log.warn("{}", e);
+            log.warn("", e);
             sendUnknownCommandMsg(friend, msgId);
         }
 
@@ -81,16 +88,19 @@ public class CommandHandler {
      * 查询指令处理
      * **/
     public void pluginCommandHandler(Contact contact, String command, int msgId) {
-
+        log.info("处理指令消息,{}", command);
+        if (command.startsWith("/vits")) {
+            VitsHandler.handlerInit(contact, msgId, command);
+        }
     }
     /**
-     * 本地exec指令处理,使用commons-exec异步处理，执行powershell指令
+     * 本地exec指令处理,使用commons-exec异步处理，执行指令
     **/
     public void localCommandHandler(Contact contact, String command, int msgId) {
         command = command.substring(2);
         ByteArrayOutputStream susStream = new ByteArrayOutputStream();//正常结果流
         ByteArrayOutputStream errStream = new ByteArrayOutputStream();//异常结果流
-        CommandLine commandLine = CommandLine.parse("powershell -Command \"" + command + "\"");
+        CommandLine commandLine = CommandLine.parse(command);
         DefaultExecutor exec = new DefaultExecutor();
         PumpStreamHandler streamHandler = new PumpStreamHandler(susStream, errStream);
         exec.setStreamHandler(streamHandler);
@@ -101,7 +111,7 @@ public class CommandHandler {
                     String result = IOUtils.toString(susStream.toInputStream(), "GBK").trim();
                     contact.sendMessage(new TextMessage(result));
                 } catch (IOException e) {
-                    log.error("{}", e);
+                    log.error("", e);
                     contact.sendMessage(new TextMessage("获取流错误，详情请看后台日志"));
                 }
             }
@@ -111,7 +121,7 @@ public class CommandHandler {
                     String result = IOUtils.toString(errStream.toInputStream(), "GBK").trim();
                     contact.sendMessage(new TextMessage(result));
                 } catch (IOException ex) {
-                    log.error("{}", ex);
+                    log.error("", ex);
                     contact.sendMessage(new TextMessage("获取错误流错误，详情请看后台日志"));
                 }
             }
@@ -119,7 +129,7 @@ public class CommandHandler {
         try {
             exec.execute(commandLine, erh);
         } catch (IOException e) {
-            log.error("{}", e);
+            log.error("", e);
             contact.sendMessage(new TextMessage("虚拟机与系统操作异常，详情请查看后台日志"));
         }
     }
